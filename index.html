@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grotto Point Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="mainWrapper">
+        <h1>Grotto Point Tracker</h1>
+        <form id="theForm" action="">
+            <input id="inputName" type="text" list="playerSuggestions" placeholder="Player name...">
+            <datalist id="playerSuggestions"></datalist>
+            <input id="inputPoints" type="number" placeholder="Points won..." value="1" min="1">
+            <button id="btnSubmit" type="button">Submit</button>
+        </form>
+        <h2>Grotto Points list</h2>
+        <ul id="listOfWinners">N/A</ul>
+        <hr>
+        <h3 id="titleCurrentWinner">Current winner:</h3>
+        <p id="currentWinner">N/A</p>
+    </div>
+
+    <script>
+
+        const regulars = ["Hikari", "Baby Egg", "Tem", "Ari", "Lure", "Hazel", "Slab", "Antim'a", "Leli", "Senna", "Shiloh", "Malphas", "Roma", "Sendoku", "Osha", "Mefi", "Azu", "Kuro", "Nagi", "Bonjo", "Kuba", "Flynn", "Anya", "Bessa"].sort();
+        const playerSuggestions = document.getElementById("playerSuggestions");
+        const winnersArray = [];
+        const btnSubmit = document.getElementById("btnSubmit");
+        const inputName = document.getElementById("inputName");
+        const inputPoints = document.getElementById("inputPoints");
+        const listOfWinners = document.getElementById("listOfWinners");
+        const currentWinner = document.getElementById("currentWinner");
+        const titleCurrentWinner = document.getElementById("titleCurrentWinner");
+
+        regulars.forEach(player => {
+            const option = document.createElement("option");
+            option.value = player;
+            playerSuggestions.appendChild(option);
+        });
+
+        function givePoints() {
+            const name = inputName.value.trim();
+            const points = parseInt(inputPoints.value);
+
+            if (name === "" || isNaN(points)) {
+                alert("Please enter a valid name and number of points.");
+                return;
+            }
+
+            const existingWinner = winnersArray.find(winner => winner.name.toLowerCase() === name.toLowerCase());
+
+            if (existingWinner) {
+                existingWinner.points += points;
+            } else {
+                winnersArray.push({ name: name, points: points });
+            }
+        
+            displayWinners();
+            updateCurrentWinner();
+
+            inputName.value = "";
+            inputPoints.value = 1;
+        }
+
+        function displayWinners() {
+            listOfWinners.innerHTML = "";
+            winnersArray.forEach((winner, index) => {
+                const li = document.createElement("li");
+                if (winner.points <2 && winner.points !== 0) {
+                    li.textContent = `${winner.name}: ${winner.points} point`;
+                } else {
+                    li.textContent = `${winner.name}: ${winner.points} points`;
+                }
+
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "❌";
+                deleteButton.style.marginLeft = "10px";
+                deleteButton.addEventListener("click", () => {
+                    winnersArray.splice(index, 1);
+                    displayWinners();
+                    updateCurrentWinner();
+                });
+                li.appendChild(deleteButton);
+                listOfWinners.appendChild(li);
+                inputName.focus();
+            });
+        }
+
+        function updateCurrentWinner() {
+            if (winnersArray.length === 0) {
+                titleCurrentWinner.textContent = "Current winner:";
+                currentWinner.textContent = "N/A";
+                return;
+            }
+
+            const maxPoints = Math.max(...winnersArray.map(winner => winner.points));
+            const topWinners = winnersArray.filter(winner => winner.points === maxPoints);
+
+            if (topWinners.length === 1) {
+                if (maxPoints <2 && maxPoints !== 0) {
+                    currentWinner.textContent = `${topWinners[0].name} with ${topWinners[0].points} point`;
+                } else {
+                    currentWinner.textContent = `${topWinners[0].name} with ${topWinners[0].points} points`;
+                }
+                titleCurrentWinner.textContent = "Current winner:";
+                
+            } else {
+                const names = topWinners.map(winner => winner.name).join(", ");
+                if (maxPoints <2) {
+                    currentWinner.textContent = `${names} with ${maxPoints} point each`;
+                } else {
+                    currentWinner.textContent = `${names} with ${maxPoints} points each`;
+                }
+                titleCurrentWinner.textContent = `Current winners (${topWinners.length}-way tie):`;
+                
+            }
+        }
+
+        btnSubmit.addEventListener("click", givePoints);
+        inputName.focus();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </script>
+</body>
+</html>
